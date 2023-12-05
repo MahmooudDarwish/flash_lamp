@@ -1,5 +1,6 @@
 import 'package:flash_lamp/assets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LampScreen extends StatefulWidget {
   const LampScreen({Key? key}) : super(key: key);
@@ -12,8 +13,9 @@ class _State extends State<LampScreen> {
   Offset tapPosition = const Offset(0.0, 150.0);
   Offset anchor = const Offset(0, 0);
   GlobalKey globalKey = GlobalKey();
-  bool isFlashOn = true;
+  bool isFlashOn = false;
 
+  var channel = const MethodChannel("toggle-flash");
   @override
   void initState() {
     super.initState();
@@ -23,6 +25,17 @@ class _State extends State<LampScreen> {
     });
   }
 
+  toggleFlash()  {
+
+    try {
+       channel.invokeMethod("toggleFlash");
+      isFlashOn = !isFlashOn;
+    }catch (error) {
+    debugPrint(error.toString());
+    }
+
+
+  }
   getPosition() {
     RenderBox? box = globalKey.currentContext?.findRenderObject() as RenderBox?;
     anchor = box?.localToGlobal(Offset.zero) ?? Offset.zero;
@@ -33,7 +46,7 @@ class _State extends State<LampScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: Colors.grey[600],
       body: Center(
         child: Stack(
           alignment: Alignment.center,
@@ -54,8 +67,8 @@ class _State extends State<LampScreen> {
                   });
                 },
                 onPanEnd: (details) {
-                  // open flash or close it
                   setState(() {
+                    toggleFlash();
                     tapPosition = Offset(anchor.dx, anchor.dy + 150);
                   });
                 },
